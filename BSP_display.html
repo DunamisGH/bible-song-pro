@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bible Song Pro - Display</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -9,7 +10,622 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/display/bsp-display.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+    
+    @font-face {
+      font-family: 'CustomFont';
+      src: url('') format('truetype');
+    }
+    
+    @font-face {
+      font-family: 'CMGSans';
+      src: local('Arial'), local('Helvetica');
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    #bg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -3;
+      overflow: hidden;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: black;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+    }
+
+    /* Crossfade overlay for full-mode BG dissolves */
+    #bg-layer-crossfade {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -2;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .bg-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateZ(0);
+    }
+
+    .bg-youtube {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      display: none;
+      pointer-events: none;
+      transform: translateZ(0);
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .bg-youtube iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 0;
+    }
+
+    #lt-bg-wrap {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      z-index: -2;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                  height 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(to top, 
+                  rgba(0, 0, 0, 1) 0%, 
+                  rgba(0, 0, 0, 0.85) 15%, 
+                  rgba(0, 0, 0, 0.7) 30%, 
+                  rgba(0, 0, 0, 0.5) 50%, 
+                  rgba(0, 0, 0, 0.3) 70%, 
+                  rgba(0, 0, 0, 0.1) 85%, 
+                  rgba(0, 0, 0, 0) 100%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    #lt-bg-inner {
+      position: absolute;
+      inset: 0;
+      background-color: black;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), 
+                  background-color 0.2s ease;
+    }
+
+    /* Crossfade overlay for LT-mode BG dissolves */
+    #lt-bg-crossfade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #display-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #text-container {
+      color: white;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+      max-width: 100%;
+      width: 100%;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      text-align: center;
+      box-sizing: border-box;
+      line-height: 1.2;
+      position: absolute;
+      z-index: 4;
+      will-change: transform, opacity;
+    }
+
+    .bsp-overlay-layer { position:absolute; z-index:30; pointer-events:none; display:block; visibility:hidden; opacity:0; transform:translateY(8px) scale(.99); transition:opacity .32s ease, transform .32s ease, visibility 0s linear .32s; }
+    .bsp-overlay-layer.is-visible { visibility:visible; opacity:var(--overlay-opacity,1); transform:translateY(0) scale(1); transition-delay:0s; }
+    #media-overlay, #media-video-overlay, #logo-overlay { object-fit:contain; }
+    #text-overlay { transform:translate(-50%,-50%) scale(.98); max-width:90vw; padding:.22em .5em; border-radius:.15em; font-weight:800; text-align:center; line-height:1.15; text-shadow:1px 2px 5px rgba(0,0,0,.8); white-space:pre-wrap; overflow-wrap:anywhere; }
+    #text-overlay.is-visible { transform:translate(-50%,-50%) scale(1); }
+    #ticker-overlay { display:flex; visibility:hidden; opacity:0; transform:translateY(100%); transition:opacity .32s ease, transform .32s ease, visibility 0s linear .32s; position:absolute; z-index:30; left:0; right:0; bottom:0; width:100%; height:9%; overflow:hidden; white-space:nowrap; padding:.22em 0; color:#fff; font-size:4.8vh; font-weight:800; line-height:1.2; text-shadow:1px 2px 4px rgba(0,0,0,.8); pointer-events:none; align-items:center; }
+    #ticker-overlay.is-visible { visibility:visible; opacity:1; transform:translateY(0); transition-delay:0s; }
+    #ticker-track { position:absolute; left:100%; top:50%; width:max-content; display:flex; transform:translateY(-50%); animation:ticker-scroll 18s linear infinite; }
+    .ticker-loop { display:flex; flex:none; width:max-content; }
+    .ticker-copy { display:block; flex:none; white-space:pre; }
+    body #display-container { transition:height .32s ease; }
+    body.ticker-active #display-container { height:91%; }
+    @keyframes ticker-scroll {
+      from { transform:translate3d(0, -50%, 0); }
+      to { transform:translate3d(-50%, -50%, 0); }
+    }
+
+
+    #custom-lt-ref-box {
+      position: absolute;
+      display: none;
+      background: #00411C;
+      opacity: 0.95;
+      border: 2px solid white;
+      border-radius: 10px;
+      box-shadow: 15px 11px 16px 0px rgba(0, 0, 0, 0.5);
+      z-index: 3;
+      align-items: center;
+      justify-content: center;
+      font-family: 'CMGSans', 'Montserrat', sans-serif;
+      font-weight: bold;
+      font-size: 36px;
+      color: white;
+      text-align: center;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  top 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      padding: 12px 24px;
+      min-width: 200px;
+      pointer-events: none;
+    }
+
+    #custom-lt-version-bar {
+      position: absolute;
+      display: none;
+      background: #1a1a2e;
+      opacity: 0.95;
+      border: 1px solid white;
+      border-radius: 8px;
+      z-index: 3;
+      align-items: center;
+      justify-content: center;
+      font-family: 'CMGSans', 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      color: white;
+      text-align: center;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px 12px;
+      min-width: 120px;
+      pointer-events: none;
+    }
+
+    #custom-lt-main-bar {
+      position: absolute;
+      display: none;
+      width: 100%;
+      background: linear-gradient(90deg, 
+                  rgba(0, 94, 41, 0.95) 0%, 
+                  rgba(23, 142, 76, 0.95) 100%);
+      z-index: 2;
+      align-items: center;
+      font-family: 'CMGSans', 'Montserrat', sans-serif;
+      font-weight: bold;
+      font-size: 40px;
+      color: white;
+      text-shadow: 2px 2px 4px #000000;
+      text-align: left;
+      padding: 20px 0 20px 60px;
+      box-sizing: border-box;
+      min-height: 220px;
+      transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                  top 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    /* Bible/Song Specific Styling */
+    .lt-bible #text-container {
+      text-align: left;
+    }
+    
+    .lt-song #text-container {
+      text-align: center;
+    }
+
+    /* Verse Styling */
+    .jo-body {
+      display: block;
+      transition: all 0.3s ease;
+    }
+    
+    .dual-primary-block {
+      display: block;
+    }
+
+    .dual-secondary-wrapper {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .dual-secondary-wrapper .jo-ref-line {
+      margin-bottom: 2px !important;
+      opacity: 0.85;
+    }
+
+    .dual-secondary-body {
+      opacity: 0.9;
+      font-size: 0.95em;
+    }
+    
+    .jo-highlight {
+      display: block;
+      margin: 0 0 0.35em;
+      padding: 0.18em 0.4em;
+      line-height: 1.35;
+      border-radius: 10px;
+      box-decoration-break: clone;
+      background: var(--highlight-color, rgba(255, 235, 150, 0.95));
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+      word-break: break-word;
+    }
+
+    .jo-ref-line {
+      margin-bottom: 10px !important;
+      font-weight: 800 !important;
+      font-size: 0.8em !important;
+      opacity: 0.9;
+      transition: all 0.3s ease;
+    }
+
+    /* Ensure Bible reference lines use the preferred font (default Montserrat) */
+    .lt-bible .jo-ref-line {
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    
+    .jo-ref-tail {
+      margin-top: 20px !important;
+    }
+    
+    .jo-verse-sup {
+      font-size: 0.5em !important;
+      vertical-align: super !important;
+      margin-right: 4px !important;
+      line-height: 0 !important;
+      background: rgba(56, 189, 248, 0.2);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 700;
+      color: #e0f2fe;
+    }
+
+    /* Bible LT Mode Specific */
+    .lt-bible.mode-lt #text-container {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+    
+    .lt-bible.mode-lt #lt-bg-wrap {
+      bottom: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 1;
+    }
+    
+    .lt-bible.mode-lt #lt-bg-inner {
+      transform-origin: center bottom;
+    }
+    
+    .lt-bible.mode-lt .jo-body {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      text-align: left;
+      padding-right: 60px;
+    }
+    
+    .lt-bible.mode-lt .jo-ref-line {
+      position: relative;
+      z-index: 4;
+      background: transparent;
+      padding: 8px 16px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      margin-left: 0;
+      align-self: flex-start;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Custom Mode Bible */
+    .lt-bible.mode-custom #custom-lt-main-bar {
+      display: flex;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      min-height: 120px;
+      padding: 25px 15px 25px 60px;
+      align-items: center;
+    }
+    
+    .lt-bible.mode-custom #text-container {
+      display: block !important;
+      position: absolute !important;
+      left: 60px !important;
+      right: 60px !important;
+      bottom: 25px !important;
+      top: auto !important;
+      z-index: 3 !important;
+      opacity: 1 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      text-align: left !important;
+    }
+    
+    .lt-bible.mode-custom #custom-lt-ref-box {
+      display: flex;
+      bottom: calc(100% + 10px);
+      left: 60px;
+      z-index: 4;
+      min-width: 240px;
+    }
+    
+    .lt-bible.mode-custom .jo-body {
+      padding-left: 0 !important;
+      width: 100%;
+    }
+
+    /* Song LT Mode */
+    .lt-song.mode-lt #text-container {
+      text-align: center;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 10%;
+      box-sizing: border-box;
+    }
+    
+    .lt-song.mode-lt #lt-bg-wrap {
+      bottom: 0;
+      opacity: 1;
+    }
+    
+    .lt-song.mode-lt .jo-body {
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Full Screen Mode */
+    .mode-full #text-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      padding: 0 20px;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+    
+    .mode-full .jo-body {
+      text-align: center;
+      width: 100%;
+    }
+    
+    .mode-full .jo-ref-line {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 0.7em;
+      opacity: 0.9;
+    }
+
+    /* Animation Classes */
+    .transition-anim {
+      animation-fill-mode: both;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: opacity, transform, clip-path;
+    }
+    
+    .anim-fade { animation-name: fadeIn; }
+    .anim-zoom { animation-name: zoomIn; }
+    .anim-write { animation-name: writeOn; }
+    
+    .type-line {
+      display: block;
+    }
+    
+    .type-word {
+      display: inline-block;
+      white-space: pre;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    
+    .hidden-word {
+      visibility: hidden;
+      opacity: 0;
+    }
+    
+    .revealed-word {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .custom-main-text,
+    .custom-ref-text,
+    .custom-version-text {
+      display: block;
+      width: 100%;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes zoomIn {
+      from { 
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes writeOn {
+      from { 
+        opacity: 0;
+        clip-path: inset(0 100% 0 0);
+      }
+      to { 
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+      }
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes scaleIn {
+      from { 
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 1920px) {
+      #custom-lt-ref-box {
+        font-size: 28px;
+        padding: 10px 20px;
+        min-width: 180px;
+      }
+      
+      #custom-lt-main-bar {
+        font-size: 32px;
+        min-height: 180px;
+        padding: 15px 0 15px 40px;
+      }
+      
+      .lt-bible.mode-lt #text-container {
+        padding: 15px 40px;
+      }
+      
+      .lt-bible.mode-custom #text-container {
+        left: 40px !important;
+        right: 40px !important;
+        bottom: 20px !important;
+      }
+      
+      .lt-bible.mode-custom #custom-lt-main-bar {
+        padding: 20px 10px 20px 40px;
+        min-height: 100px;
+      }
+      
+      .lt-bible.mode-custom #custom-lt-ref-box {
+        left: 40px;
+      }
+    }
+
+    /* High DPI Screens */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      #text-container {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+      
+      .jo-verse-sup {
+        -webkit-font-smoothing: subpixel-antialiased;
+      }
+    }
+
+    /* Performance Optimizations */
+    .hardware-accelerated {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+  </style>
 </head>
 <body>
   <div id="bg-layer" class="hardware-accelerated">
@@ -31,10 +647,14 @@
   <div id="custom-lt-ref-box" class="hardware-accelerated"></div>
   <div id="custom-lt-version-bar" class="hardware-accelerated"></div>
   <div id="custom-lt-main-bar" class="hardware-accelerated"></div>
+  <img id="media-overlay" class="bsp-overlay-layer" alt="">
+  <video id="media-video-overlay" class="bsp-overlay-layer" muted autoplay loop playsinline></video>
+  <img id="logo-overlay" class="bsp-overlay-layer" alt="Logo">
+  <div id="text-overlay" class="bsp-overlay-layer"></div>
+  <div id="ticker-overlay" aria-live="polite"><div id="ticker-track"></div></div>
   <div id="display-container" class="mode-full">
     <div id="text-container" class="hardware-accelerated"></div>
   </div>
-  <div id="media-stage" aria-hidden="true"></div>
 
   <div id="debug-overlay" style="position: fixed; right: 12px; top: 12px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px; border-radius: 8px; z-index: 9999; font-family: monospace; font-size: 12px; max-width: 440px; max-height: 60vh; overflow:auto; display: none;">
     <div id="debug-status" style="font-weight:bold;margin-bottom:6px">DEBUG: initializing...</div>
@@ -47,12 +667,9 @@
     // ===== CONSTANTS / GLOBALS =====
     const CHANNEL_NAME = 'bible_song_pro_v1';
     const RELAY_DEFAULT_PORT = 5511;
-    const REMOTE_SHOW_PROTOCOL_VERSION = 1;
-    const SYNC_MIRROR_DB_NAME = 'bible-song-pro-sync';
-    const SYNC_MIRROR_DB_VERSION = 1;
-    const SYNC_MIRROR_STORE = 'messages';
-    const SYNC_MIRROR_LAST_KEY = 'last';
-    const channel = (typeof BroadcastChannel === 'function') ? new BroadcastChannel(CHANNEL_NAME) : null;
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+    const remotePairCode = String(new URLSearchParams(window.location.search).get('pairCode') || '').replace(/[^0-9a-z]/gi, '').toUpperCase();
+    const relayClientId = `display_${Math.random().toString(36).slice(2, 10)}`;
     const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
     const typeAnim = { textKey: null, startTime: 0, duration: 0, rafId: null, words: [] };
     const transitionState = { textKey: null, type: null, startTime: 0, duration: 0 };
@@ -72,15 +689,6 @@
     let relayUrl = '';
     let relayReconnectTimer = null;
     let relayBackoff = 1500;
-    let relayConnectedOnce = false;
-    let mirrorUpdateFallbackAt = 0;
-    const relayClientId = `display_${Math.random().toString(36).slice(2, 10)}`;
-    let syncMirrorDbPromise = null;
-    let syncMirrorPollTimer = null;
-    let lastMirrorSeq = 0;
-    let mediaActiveLayer = null;
-    let mediaZCounter = 100;
-    let mediaCoverPos = { x: 50, y: 50 };
 
     // ===== TYPOGRAPHY =====
     function loadGoogleFontIfNeeded(family) {
@@ -133,14 +741,10 @@
     // Remember last song LT layout so we can preserve visual position when BG is toggled off
     let lastSongLtLayout = {
       visualBottom: null, // px from viewport bottom to content bottom
-      visualTop: null,    // px from viewport top to content top
-      visualBottomNorm: null,
-      visualTopNorm: null,
       padTopPx: null,
       padBottomPx: null,
       sidePad: null,      // e.g. "10%"
-      heightVh: null,
-      anchor: 'bottom'
+      heightVh: null
     };
     
     // Current display state
@@ -156,7 +760,6 @@
     let rafId = null;
     let lastUpdateTime = 0;
     let lastSeq = 0;
-    let controlSession = null;
     let lastLtBgMode = 'solid';
     let lastBGMode = 'solid';
     let lastBgType = 'color';
@@ -166,7 +769,6 @@
     let lastLtBgStyle = { backgroundImage: 'none', backgroundColor: 'black' };
     const UPDATE_THROTTLE = 16; // ~60fps
     const MIN_SONG_LT_NO_BG_BOTTOM_PAD_PX = 40;
-    const MIN_SONG_LT_NO_BG_TOP_PAD_PX = 24;
     // Debug mode controlled by URL param `?debug=1` or `?debug`
     const DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
     
@@ -218,254 +820,6 @@
         console.error('debug helper failed', e);
       }
     }
-
-    function openSyncMirrorDb() {
-      if (syncMirrorDbPromise) return syncMirrorDbPromise;
-      syncMirrorDbPromise = new Promise((resolve, reject) => {
-        try {
-          const req = indexedDB.open(SYNC_MIRROR_DB_NAME, SYNC_MIRROR_DB_VERSION);
-          req.onupgradeneeded = () => {
-            const db = req.result;
-            if (!db.objectStoreNames.contains(SYNC_MIRROR_STORE)) {
-              db.createObjectStore(SYNC_MIRROR_STORE);
-            }
-          };
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error || new Error('Failed to open sync mirror DB'));
-        } catch (err) {
-          reject(err);
-        }
-      }).catch(err => {
-        syncMirrorDbPromise = null;
-        return Promise.reject(err);
-      });
-      return syncMirrorDbPromise;
-    }
-
-    function readMirrorMessage() {
-      return openSyncMirrorDb().then(db => new Promise((resolve, reject) => {
-        try {
-          const tx = db.transaction(SYNC_MIRROR_STORE, 'readonly');
-          const req = tx.objectStore(SYNC_MIRROR_STORE).get(SYNC_MIRROR_LAST_KEY);
-          req.onsuccess = () => resolve(req.result || null);
-          req.onerror = () => reject(req.error || new Error('Failed to read sync mirror message'));
-        } catch (err) {
-          reject(err);
-        }
-      })).catch(() => null);
-    }
-
-    function getMediaStage() {
-      return document.getElementById('media-stage');
-    }
-
-    function clearMediaStage() {
-      const stage = getMediaStage();
-      if (!stage) return;
-      stage.innerHTML = '';
-      stage.classList.remove('media-active');
-      stage.style.backgroundColor = 'transparent';
-      mediaActiveLayer = null;
-    }
-
-    function hideLyricStageForMedia() {
-      elements.txt.style.opacity = '0';
-      elements.bg.style.opacity = '0';
-      elements.ltWrap.style.opacity = '0';
-      elements.customRefBox.style.display = 'none';
-      if (elements.customVersionBar) elements.customVersionBar.style.display = 'none';
-      elements.customMainBar.style.display = 'none';
-    }
-
-    function getMediaPlayable(layer) {
-      return layer ? layer.querySelector('video, audio') : null;
-    }
-
-    function getMediaElement(layer) {
-      return layer ? layer.querySelector('.bsp-media-el') : null;
-    }
-
-    function applyMediaCoverPos() {
-      const el = getMediaElement(mediaActiveLayer);
-      if (!el) return;
-      el.style.objectPosition = `${mediaCoverPos.x}% ${mediaCoverPos.y}%`;
-    }
-
-    function normalizeMediaCoverPos(raw) {
-      if (!raw) return { x: 50, y: 50 };
-      const x = clamp(Number(raw.x), 0, 100);
-      const y = clamp(Number(raw.y), 0, 100);
-      return {
-        x: Number.isFinite(x) ? x : 50,
-        y: Number.isFinite(y) ? y : 50
-      };
-    }
-
-    function handleMediaRemote(remote) {
-      if (!remote || !mediaActiveLayer) return;
-      const media = getMediaPlayable(mediaActiveLayer);
-      if (!media) return;
-      if (remote.type === 'scrub') {
-        if (media.duration && isFinite(media.duration)) {
-          try { media.currentTime = clamp(Number(remote.val) || 0, 0, 1) * media.duration; } catch (_) {}
-        }
-        return;
-      }
-      const cmd = remote.cmd;
-      if (cmd === 'toggle') {
-        if (media.paused) media.play().catch(() => {});
-        else media.pause();
-      } else if (cmd === 'loop') {
-        media.loop = !!remote.isLooping || !!remote.val;
-      } else if (cmd === 'volume') {
-        const volume = Number(remote.val ?? remote.volume);
-        if (Number.isFinite(volume)) media.volume = clamp(volume, 0, 1);
-      } else if (cmd === 'seek') {
-        try { media.currentTime = 0; } catch (_) {}
-      }
-    }
-
-    function handleMediaCoverPos(data) {
-      mediaCoverPos = normalizeMediaCoverPos(data && data.coverPos);
-      applyMediaCoverPos();
-    }
-
-    function handleMediaLoad(data) {
-      const stage = getMediaStage();
-      if (!stage) return;
-      hideLyricStageForMedia();
-      stage.classList.add('media-active');
-      stage.style.backgroundColor = (data.fit === 'contain') ? (data.bgColor || 'transparent') : 'transparent';
-
-      const transition = data.transition || 'fade';
-      const easing = data.easing || 'ease';
-      const duration = transition === 'cut' ? 0 : 600;
-      const dir = Number(data.dir) >= 0 ? 1 : -1;
-      const slide = data.slide || {};
-      const type = slide.type || 'img';
-      const src = slide.src || '';
-      const volume = Number.isFinite(Number(data.volume)) ? clamp(Number(data.volume), 0, 1) : 0.8;
-      mediaCoverPos = normalizeMediaCoverPos(data.coverPos);
-
-      const nextLayer = document.createElement('div');
-      nextLayer.className = 'bsp-media-layer';
-      nextLayer.style.zIndex = String(++mediaZCounter);
-      if (data.fit === 'blur' && type !== 'audio') {
-        const bg = document.createElement('img');
-        bg.className = 'bsp-media-bg';
-        bg.src = slide.thumb || src;
-        nextLayer.appendChild(bg);
-      }
-      nextLayer.style.transition = 'none';
-      if (transition === 'slide') {
-        nextLayer.style.opacity = '1';
-        nextLayer.style.transform = dir === 1 ? 'translateX(100%)' : 'translateX(-100%)';
-      } else if (transition === 'zoom') {
-        nextLayer.style.opacity = '0';
-        nextLayer.style.transform = 'scale(1.25)';
-      } else {
-        nextLayer.style.opacity = '0';
-        nextLayer.style.transform = 'translateZ(0)';
-      }
-
-      let started = false;
-      function activate() {
-        if (started) return;
-        started = true;
-        const old = mediaActiveLayer;
-        mediaActiveLayer = nextLayer;
-        applyMediaCoverPos();
-        if (duration === 0) {
-          nextLayer.style.transition = 'none';
-          nextLayer.style.opacity = '1';
-          nextLayer.style.transform = 'translateX(0) scale(1)';
-          if (old && old.parentNode) old.remove();
-          return;
-        }
-        requestAnimationFrame(() => {
-          nextLayer.style.transition = `opacity ${duration}ms ${easing}, transform ${duration}ms ${easing}`;
-          nextLayer.offsetHeight;
-          nextLayer.style.opacity = '1';
-          nextLayer.style.transform = 'translateX(0) scale(1)';
-          if (old) {
-            old.style.transition = `opacity ${duration}ms ${easing}, transform ${duration}ms ${easing}`;
-            if (transition === 'slide') {
-              old.style.transform = dir === 1 ? 'translateX(-100%)' : 'translateX(100%)';
-              old.style.opacity = '1';
-            } else if (transition === 'zoom') {
-              old.style.transform = 'scale(.85)';
-              old.style.opacity = '0';
-            } else {
-              old.style.opacity = '0';
-            }
-            setTimeout(() => { if (old.parentNode) old.remove(); }, duration + 80);
-          }
-        });
-      }
-
-      if (type === 'video') {
-        const video = document.createElement('video');
-        video.className = 'bsp-media-el';
-        video.src = src;
-        video.autoplay = true;
-        video.playsInline = true;
-        video.loop = !!data.isLooping;
-        video.volume = volume;
-        video.style.objectFit = data.fit === 'cover' ? 'cover' : 'contain';
-        video.style.objectPosition = `${mediaCoverPos.x}% ${mediaCoverPos.y}%`;
-        video.onloadeddata = activate;
-        video.onerror = activate;
-        nextLayer.appendChild(video);
-      } else if (type === 'audio') {
-        const audio = document.createElement('audio');
-        audio.src = src;
-        audio.autoplay = true;
-        audio.loop = !!data.isLooping;
-        audio.volume = volume;
-        const card = document.createElement('div');
-        card.className = 'bsp-media-audio-card';
-        const img = document.createElement('img');
-        img.src = slide.thumb || '';
-        const title = document.createElement('div');
-        title.className = 'bsp-media-audio-title';
-        title.textContent = slide.name || 'Audio';
-        if (img.src) card.appendChild(img);
-        card.appendChild(title);
-        card.appendChild(audio);
-        nextLayer.appendChild(card);
-        audio.onloadeddata = activate;
-        audio.onerror = activate;
-        setTimeout(activate, 250);
-      } else {
-        const img = document.createElement('img');
-        img.className = 'bsp-media-el';
-        img.src = src;
-        img.style.objectFit = data.fit === 'cover' ? 'cover' : 'contain';
-        img.style.objectPosition = `${mediaCoverPos.x}% ${mediaCoverPos.y}%`;
-        img.onload = activate;
-        img.onerror = activate;
-        nextLayer.appendChild(img);
-      }
-      stage.appendChild(nextLayer);
-    }
-
-    function syncFromMirror(force = false) {
-      readMirrorMessage().then(record => {
-        if (!record || !record.msg) return;
-        if (record.msg.type === 'UPDATE' && mirrorUpdateFallbackAt && Date.now() < mirrorUpdateFallbackAt) return;
-        const seq = Number(record.seq || (record.msg && record.msg.seq) || 0);
-        if (!force && seq && seq <= lastMirrorSeq) return;
-        lastMirrorSeq = Math.max(lastMirrorSeq, seq);
-        handleInboundMessage(record.msg, 'idb');
-      }).catch(() => {});
-    }
-
-    function startMirrorPolling() {
-      if (syncMirrorPollTimer) return;
-      syncMirrorPollTimer = setInterval(() => {
-        syncFromMirror(false);
-      }, 800);
-    }
     
     // ===== SYNC (BroadcastChannel) =====
     // Initialize
@@ -485,23 +839,19 @@
       else console.log('init: debug overlay hidden');
 
       // Send initial ping + state request
-      mirrorUpdateFallbackAt = Date.now() + 2500;
-      sendDisplayHello('init');
+      channel.postMessage({ type: 'PONG' });
+      channel.postMessage({ type: 'HELLO FROM DISP', proto: 1, sender: 'display', ts: Date.now() });
       connectRelay();
-      startMirrorPolling();
       if (helloTimer) clearInterval(helloTimer);
       helloTimer = setInterval(() => {
-        if (hasSynced && relayConnectedOnce) {
+        if (hasSynced) {
           clearInterval(helloTimer);
           helloTimer = null;
           return;
         }
-        sendDisplayHello('retry');
-        if (!relaySocket || relaySocket.readyState === WebSocket.CLOSED || relaySocket.readyState === WebSocket.CLOSING) {
-          connectRelay();
-        }
-        if (!hasSynced) syncFromMirror(false);
-      }, 500);
+        channel.postMessage({ type: 'HELLO 2 FROM DISP', proto: 1, sender: 'display', ts: Date.now() });
+        relaySend({ type: 'HELLO', proto: 1, sender: 'display', ts: Date.now() });
+      }, 2000);
       
       // Self-test: only run in debug mode
       if (DEBUG_MODE) {
@@ -535,49 +885,27 @@
       }
     }
 
-    function normalizePairCode(raw) {
-      return String(raw || '').replace(/[^0-9a-zA-Z]/g, '').slice(0, 32).toUpperCase();
-    }
-
-    function getRelayPairCode() {
-      try {
-        const params = new URLSearchParams(window.location.search || '');
-        return normalizePairCode(params.get('pair') || params.get('token') || '');
-      } catch (_) {
-        return '';
-      }
-    }
-
-    function relayNormalizeInbound(raw) {
-      if (!raw || typeof raw !== 'object') return null;
-      if (raw.type !== 'RS_ENVELOPE') return raw;
-      const ver = Number(raw.version || 0);
-      if (!Number.isFinite(ver) || ver < 1) return null;
-      if (!raw.payload || typeof raw.payload !== 'object') return null;
-      if (raw.senderId && raw.senderId === relayClientId) return null;
-      return raw.payload;
-    }
-
     function relaySend(msg) {
       if (!relaySocket || relaySocket.readyState !== WebSocket.OPEN) return;
-      if (!msg || typeof msg !== 'object' || typeof msg.type !== 'string') return;
-      const pairCode = getRelayPairCode();
-      const envelope = {
-        type: 'RS_ENVELOPE',
-        version: REMOTE_SHOW_PROTOCOL_VERSION,
-        senderId: relayClientId,
-        sessionId: pairCode ? `session_${pairCode.toLowerCase()}` : 'session_default',
-        token: pairCode,
-        ts: Date.now(),
-        payload: msg
-      };
-      try { relaySocket.send(JSON.stringify(envelope)); } catch (e) {}
+      try {
+        const outgoing = remotePairCode ? {
+          type: 'RS_ENVELOPE', version: 1, senderId: relayClientId,
+          sessionId: `session_${remotePairCode.toLowerCase()}`, token: remotePairCode,
+          ts: Date.now(), payload: msg
+        } : msg;
+        relaySocket.send(JSON.stringify(outgoing));
+      } catch (e) {}
     }
 
-    function sendDisplayHello(reason) {
-      const msg = { type: 'HELLO', proto: 1, sender: 'display', clientId: relayClientId, reason, ts: Date.now() };
-      if (channel) channel.postMessage(msg);
-      relaySend(msg);
+    function normalizeRelayMessage(data) {
+      if (!data || data.type !== 'RS_ENVELOPE') return data;
+      if (Number(data.version || 0) !== 1 || !data.payload || typeof data.payload !== 'object') return null;
+      const token = String(data.token || '').replace(/[^0-9a-z]/gi, '').toUpperCase();
+      if (remotePairCode && token !== remotePairCode) return null;
+      const expectedSession = remotePairCode ? `session_${remotePairCode.toLowerCase()}` : '';
+      if (expectedSession && data.sessionId !== expectedSession) return null;
+      if (data.senderId === relayClientId) return null;
+      return data.payload;
     }
 
     function buildRelayUrl() {
@@ -609,7 +937,7 @@
         relayReconnectTimer = null;
         connectRelay();
       }, relayBackoff);
-      relayBackoff = Math.min(relayBackoff * 1.5, hasSynced ? 3000 : 5000);
+      relayBackoff = Math.min(relayBackoff * 1.5, 15000);
     }
 
     function connectRelay() {
@@ -626,8 +954,7 @@
       }
       relaySocket.onopen = () => {
         relayBackoff = 1500;
-        relayConnectedOnce = true;
-        sendDisplayHello('relay-open');
+        relaySend({ type: 'HELLO', proto: 1, sender: 'display', ts: Date.now() });
       };
       relaySocket.onclose = () => {
         scheduleRelayReconnect();
@@ -636,30 +963,89 @@
       relaySocket.onmessage = (event) => {
         let data = null;
         try { data = JSON.parse(event.data); } catch (e) { return; }
-        const payload = relayNormalizeInbound(data);
-        if (!payload) return;
-        handleInboundMessage(payload, 'relay');
+        data = normalizeRelayMessage(data);
+        if (!data) return;
+        handleInboundMessage(data, 'relay');
       };
+    }
+
+    function renderOverlay(name, data = {}) {
+      const clampPct = (value, fallback = 0) => clamp(Number.isFinite(Number(value)) ? Number(value) : fallback, 0, 100);
+      if (name === 'ticker') {
+        const overlay = document.getElementById('ticker-overlay');
+        const track = document.getElementById('ticker-track');
+        if (!data.enabled || !String(data.text || '').trim()) {
+          overlay.classList.remove('is-visible'); document.body.classList.remove('ticker-active'); return;
+        }
+        const repeatedText = `${String(data.text).trim()}   •   `;
+        overlay.style.fontSize = `${clamp(Number(data.scale) || 100, 50, 250) * 0.048}vh`;
+        track.replaceChildren();
+        const loopA = document.createElement('div');
+        loopA.className = 'ticker-loop';
+        const measureCopy = document.createElement('span');
+        measureCopy.className = 'ticker-copy'; measureCopy.textContent = repeatedText;
+        loopA.appendChild(measureCopy);
+        const period = Math.max(1, measureCopy.getBoundingClientRect().width);
+        const copies = Math.max(1, Math.ceil(window.innerWidth / period) + 1);
+        for (let i = 1; i < copies; i++) {
+          const copy = document.createElement('span');
+          copy.className = 'ticker-copy'; copy.textContent = repeatedText; loopA.appendChild(copy);
+        }
+        const loopB = loopA.cloneNode(true);
+        loopB.setAttribute('aria-hidden', 'true');
+        track.append(loopA, loopB);
+        // One loop takes the same time as its constituent copies did before.
+        const secondsPerCopy = clamp(Number(data.speed) || 18, 6, 60);
+        track.style.animationDuration = `${secondsPerCopy * copies}s`;
+        overlay.style.color = /^#[0-9a-f]{3,8}$/i.test(data.color || '') ? data.color : '#ffffff';
+        overlay.style.backgroundColor = /^rgba?\(/i.test(data.background || '') ? data.background : 'rgba(0,0,0,.72)';
+        document.body.classList.add('ticker-active');
+        track.style.animationName = 'none'; void track.offsetWidth; track.style.animationName = 'ticker-scroll';
+        overlay.classList.add('is-visible'); return;
+      }
+      if (name === 'text') {
+        const el = document.getElementById('text-overlay');
+        if (!data.enabled || !String(data.text || '').trim()) { el.classList.remove('is-visible'); return; }
+        el.textContent = String(data.text);
+        el.style.left = `${clampPct(data.x,50)}%`; el.style.top = `${clampPct(data.y,50)}%`;
+        el.style.fontSize = `${clamp(Number(data.scale) || 100,50,250) * 0.048}vh`;
+        el.style.color = /^#[0-9a-f]{3,8}$/i.test(data.color || '') ? data.color : '#fff';
+        el.style.backgroundColor = /^rgba?\(/i.test(data.background || '') ? data.background : 'transparent';
+        el.classList.add('is-visible'); return;
+      }
+      if (name === 'logo' || name === 'media') {
+        const img = document.getElementById(name === 'logo' ? 'logo-overlay' : 'media-overlay');
+        const video = document.getElementById('media-video-overlay');
+        if (!data.enabled || !data.src) {
+          img.classList.remove('is-visible');
+          if (name === 'media') {
+            video.classList.remove('is-visible');
+            setTimeout(() => { if (!video.classList.contains('is-visible')) { video.pause(); video.removeAttribute('src'); video.load(); } }, 350);
+          }
+          return;
+        }
+        const isVideo = name === 'media' && (/^data:video\//i.test(data.src) || /\.(mp4|webm|ogg)(?:$|[?#])/i.test(data.src));
+        const el = isVideo ? video : img;
+        if (name === 'media') { video.classList.remove('is-visible'); img.classList.remove('is-visible'); }
+        el.src = data.src;
+        el.style.left = `${clampPct(data.x)}%`; el.style.top = `${clampPct(data.y)}%`;
+        el.style.width = `${clamp(Number(data.width) || (name === 'logo' ? 12 : 100), 2, 100)}%`;
+        el.style.setProperty('--overlay-opacity', String(clamp(Number(data.opacity ?? 100),0,100) / 100));
+        requestAnimationFrame(() => el.classList.add('is-visible'));
+      }
     }
 
     function handleInboundMessage(d, source) {
       debug(`MSG(${source}): ` + (d.type || 'unknown') + (d.text ? ' — ' + (String(d.text).slice(0,80)) : ''));
-      // A restarted panel is a new control session with its own seq counter. Without this,
-      // lastSeq stays seeded from the mirrored state of the previous session and every
-      // fresh message with a lower seq — a MEDIA_LOAD, typically — is dropped unseen.
-      if (source !== 'idb' && d.session && d.session !== controlSession) {
-        controlSession = d.session;
-        lastSeq = 0;
-        lastMirrorSeq = 0;
-      }
-      // Once a live session is known, mirrored records from a dead one are stale.
-      if (source === 'idb' && controlSession && d.session && d.session !== controlSession) return;
       try {
         switch (d.type) {
+          case 'OVERLAY_UPDATE':
+            renderOverlay(d.overlay, d.data || {});
+            break;
           case 'PING': {
             const pong = { type: 'PONG' };
             if (source === 'relay') relaySend(pong);
-            else if (channel) channel.postMessage(pong);
+            else channel.postMessage(pong);
             break;
           }
           case 'CLEAR':
@@ -669,23 +1055,7 @@
           case 'UPDATE':
             hasSynced = true;
             if (!acceptSeq(d.seq)) return;
-            clearMediaStage();
             applyUpdateWithThrottle(d);
-            break;
-          case 'MEDIA_LOAD':
-            hasSynced = true;
-            if (!acceptSeq(d.seq)) return;
-            handleMediaLoad(d);
-            break;
-          case 'MEDIA_CLEAR':
-            hasSynced = true;
-            if (acceptSeq(d.seq)) clearDisplay({ fade: d.fade !== false, duration: d.transitionDuration });
-            break;
-          case 'MEDIA_REMOTE':
-            handleMediaRemote(d.remote || d);
-            break;
-          case 'MEDIA_COVER_POS':
-            handleMediaCoverPos(d);
             break;
           case 'SYNC_STATE': {
             const state = d.state || {};
@@ -696,10 +1066,7 @@
             if (state.kind === 'clear') {
               clearDisplay();
             } else if (state.kind === 'update' && payload) {
-              clearMediaStage();
               applyUpdateWithThrottle(payload);
-            } else if (state.kind === 'media' && payload) {
-              handleMediaLoad(payload);
             }
             break;
           }
@@ -710,199 +1077,17 @@
       }
     }
 
-    if (channel) {
-      channel.onmessage = (e) => {
-        handleInboundMessage(e.data || {}, 'bc');
-      };
-    }
+    channel.onmessage = (e) => {
+      handleInboundMessage(e.data || {}, 'bc');
+    };
     
     function computeLtHeight(d) {
       let ltHeight = Number(d.ltBgHeightPct || 20);
       if (d.autoAdjustLtHeight) {
         const lineCount = d.lineCount || d.verseCount || 2;
-        const extraPerLine = d.isBible ? 4 : 2.5;
-        ltHeight = ltHeight + Math.max(0, (lineCount - 2) * extraPerLine);
+        ltHeight = ltHeight + Math.max(0, (lineCount - 2) * 4);
       }
-      return clamp(ltHeight, d.isBible ? 12 : 10, d.isBible ? 50 : 40);
-    }
-
-    function getLtAnchorMode(d) {
-      return (d && d.ltAnchorMode === 'top') ? 'top' : 'bottom';
-    }
-
-    function getLtOffsetY(d) {
-      return Math.max(-1200, Math.min(1200, Number(d && d.ltOffsetY) || 0));
-    }
-
-    function getLtOffsetX(d) {
-      return Math.max(-1200, Math.min(1200, Number(d && d.ltOffsetX) || 0));
-    }
-
-    function getLtBorderRadius(d) {
-      return Math.max(0, Math.min(240, Number(d && d.ltBorderRadius) || 0));
-    }
-
-    function getLtScaleFactor(d) {
-      return Math.max(0, Math.min(100, Number(d && d.ltScalePct) || 100)) / 100;
-    }
-
-    function getLtWrapTransform(d) {
-      const rawOffsetX = getLtOffsetX(d);
-      const rawOffset = getLtOffsetY(d);
-      const isTop = getLtAnchorMode(d) === 'top';
-      const translateY = isTop ? rawOffset : -rawOffset;
-      const scale = getLtScaleFactor(d);
-      return `translate(calc(-50% + ${rawOffsetX}px), ${translateY}px) scale(${scale})`;
-    }
-
-    function getLtTextTransform(d) {
-      const rawOffsetX = getLtOffsetX(d);
-      const rawOffset = getLtOffsetY(d);
-      const isTop = getLtAnchorMode(d) === 'top';
-      const translateY = isTop ? rawOffset : -rawOffset;
-      const scale = getLtScaleFactor(d);
-      return `translate(${rawOffsetX}px, ${translateY}px) scale(${scale})`;
-    }
-
-    function applyLtContentWidth(d) {
-      const pct = Math.max(50, Math.min(100, Number(d && d.ltWidthPct) || 100));
-      elements.txt.style.width = `${pct}%`;
-      elements.txt.style.maxWidth = `${pct}%`;
-      elements.txt.style.marginLeft = 'auto';
-      elements.txt.style.marginRight = 'auto';
-      elements.ltWrap.style.left = '50%';
-      elements.ltWrap.style.right = 'auto';
-      elements.ltWrap.style.transform = getLtWrapTransform(d);
-      elements.ltWrap.style.width = `${pct}%`;
-      elements.ltWrap.style.maxWidth = `${pct}%`;
-      elements.ltInner.style.width = '100%';
-      elements.ltInner.style.maxWidth = '100%';
-      elements.ltCrossfade.style.width = '100%';
-      elements.ltCrossfade.style.maxWidth = '100%';
-    }
-
-    function applyLtBandOffset(d) {
-      elements.ltWrap.style.transform = getLtWrapTransform(d);
-    }
-
-    function applyLtBorderRadius(d) {
-      const radius = getLtBorderRadius(d);
-      const radiusPx = `${radius}px`;
-      elements.ltWrap.style.borderRadius = radiusPx;
-      elements.ltInner.style.borderRadius = radiusPx;
-      elements.ltCrossfade.style.borderRadius = radiusPx;
-    }
-
-    function applyLtTextOffset(d) {
-      elements.txt.style.transform = getLtTextTransform(d);
-    }
-
-    function applySongLtVerticalLayout(d, ltHeight, sidePad, vAlignLT, anchorMode) {
-      const isTopAnchor = anchorMode === 'top';
-      const requestedHeightPx = (ltHeight / 100) * window.innerHeight;
-      elements.txt.style.top = isTopAnchor ? '0' : 'auto';
-      elements.txt.style.bottom = isTopAnchor ? 'auto' : '0';
-      elements.txt.style.paddingLeft = sidePad;
-      elements.txt.style.paddingRight = sidePad;
-      elements.txt.style.paddingTop = '0px';
-      elements.txt.style.paddingBottom = '0px';
-      elements.txt.style.height = 'auto';
-      elements.txt.style.overflow = 'visible';
-
-      const txtHeight = elements.txt.scrollHeight || elements.txt.getBoundingClientRect().height || 0;
-      const edgePadPx = Math.max(14, Math.round(0.016 * window.innerHeight));
-      const fittedHeightPx = Math.max(txtHeight + (edgePadPx * 2), 64);
-      const actualHeightPx = d.autoAdjustLtHeight ? Math.min(requestedHeightPx, fittedHeightPx) : requestedHeightPx;
-      const actualHeightVh = (actualHeightPx / window.innerHeight) * 100;
-
-      elements.ltWrap.style.height = `${actualHeightVh}vh`;
-      elements.txt.style.height = `${actualHeightVh}vh`;
-      elements.txt.style.overflow = 'hidden';
-
-      let topPad = edgePadPx;
-      let bottomPad = edgePadPx;
-      let justifyContent = 'center';
-
-      if (vAlignLT === 'top') {
-        justifyContent = 'flex-start';
-      } else if (vAlignLT === 'bottom') {
-        justifyContent = 'flex-end';
-      } else {
-        const available = Math.max(0, actualHeightPx - (edgePadPx * 2));
-        if (txtHeight <= available) {
-          const extra = available - txtHeight;
-          topPad = edgePadPx + Math.floor(extra / 2);
-          bottomPad = edgePadPx + Math.ceil(extra / 2);
-        }
-      }
-
-      elements.txt.style.paddingTop = `${topPad}px`;
-      elements.txt.style.paddingBottom = `${bottomPad}px`;
-      elements.txt.style.justifyContent = justifyContent;
-
-      lastSongLtLayout.padTopPx = topPad;
-      lastSongLtLayout.padBottomPx = bottomPad;
-      lastSongLtLayout.sidePad = sidePad;
-      lastSongLtLayout.heightVh = actualHeightVh;
-      lastSongLtLayout.anchor = anchorMode;
-
-      const textRect = elements.txt.getBoundingClientRect();
-      lastSongLtLayout.visualTop = Math.round(textRect.top || 0);
-      lastSongLtLayout.visualBottom = Math.round(window.innerHeight - (textRect.bottom || 0));
-      lastSongLtLayout.padTopNorm = actualHeightPx > 0 ? (topPad / actualHeightPx) : null;
-      lastSongLtLayout.padBottomNorm = actualHeightPx > 0 ? (bottomPad / actualHeightPx) : null;
-      lastSongLtLayout.visualTopNorm = (lastSongLtLayout.visualTop != null) ? (lastSongLtLayout.visualTop / window.innerHeight) : null;
-      lastSongLtLayout.visualBottomNorm = (lastSongLtLayout.visualBottom != null) ? (lastSongLtLayout.visualBottom / window.innerHeight) : null;
-    }
-
-    function applyBibleLtLayout(d, ltHeight, anchorMode) {
-      const isTopAnchor = anchorMode === 'top';
-      const padLR = Math.max(0, d.padLRLT ?? d.padLR ?? 0);
-      const bodyInset = 'clamp(24px, 2vw, 40px)';
-      const hAlignLT = d.hAlignLTBible || 'left';
-      const vAlignLT = d.vAlignLTBible || 'middle';
-      const verseAlign = d.hAlignLTBibleVerse || hAlignLT;
-
-      elements.txt.style.height = `${ltHeight}vh`;
-      elements.txt.style.overflow = 'hidden';
-      elements.txt.style.top = isTopAnchor ? '0' : 'auto';
-      elements.txt.style.bottom = isTopAnchor ? 'auto' : '0';
-      elements.txt.style.padding = isTopAnchor ? `2vh ${padLR}% 0` : `0 ${padLR}% 2vh`;
-      elements.txt.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
-      elements.txt.style.alignItems = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
-      elements.txt.style.justifyContent = (vAlignLT === 'top') ? 'flex-start' : (vAlignLT === 'bottom' ? 'flex-end' : 'center');
-
-      const refEls = elements.txt.querySelectorAll('.jo-ref-line');
-      refEls.forEach(refEl => {
-        refEl.style.background = 'transparent';
-        refEl.style.boxShadow = 'none';
-        refEl.style.alignSelf = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
-        refEl.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
-      });
-
-      const bodyEls = elements.txt.querySelectorAll('.jo-body');
-      bodyEls.forEach(bodyEl => {
-        bodyEl.style.width = '100%';
-        bodyEl.style.boxSizing = 'border-box';
-        bodyEl.style.paddingLeft = bodyInset;
-        bodyEl.style.paddingRight = bodyInset;
-        bodyEl.style.textAlign = (verseAlign === 'justify') ? 'justify' : verseAlign;
-        bodyEl.style.alignSelf = (verseAlign === 'left') ? 'flex-start' : (verseAlign === 'right') ? 'flex-end' : (verseAlign === 'justify' ? 'stretch' : 'center');
-      });
-    }
-
-    function applyLtAnchorMode(anchorMode) {
-      const isTop = anchorMode === 'top';
-      elements.ltWrap.style.top = isTop ? '0' : 'auto';
-      elements.ltWrap.style.bottom = isTop ? 'auto' : '0';
-      elements.ltWrap.style.alignItems = isTop ? 'flex-start' : 'flex-end';
-      elements.ltWrap.style.transformOrigin = isTop ? 'center top' : 'center bottom';
-      elements.txt.style.transformOrigin = isTop ? 'center top' : 'center bottom';
-      elements.ltWrap.style.background = isTop
-        ? 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 15%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.3) 70%, rgba(0, 0, 0, 0.1) 85%, rgba(0, 0, 0, 0) 100%)'
-        : 'linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 15%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.3) 70%, rgba(0, 0, 0, 0.1) 85%, rgba(0, 0, 0, 0) 100%)';
-      elements.ltInner.style.transformOrigin = isTop ? 'center top' : 'center bottom';
-      elements.ltCrossfade.style.transformOrigin = isTop ? 'center top' : 'center bottom';
+      return clamp(ltHeight, 12, 50);
     }
     
     function registerIncomingFonts(fonts) {
@@ -1103,7 +1288,7 @@
       if (window._joResizeRaf) cancelAnimationFrame(window._joResizeRaf);
       window._joResizeRaf = requestAnimationFrame(() => {
         window._joResizeRaf = null;
-        if (!lastSongLtLayout || (lastSongLtLayout.visualBottom == null && lastSongLtLayout.visualTop == null)) return;
+        if (!lastSongLtLayout || lastSongLtLayout.visualBottom == null) return;
 
         if (lastSongLtLayout.heightVh != null) {
           const ltHeightPx = (lastSongLtLayout.heightVh / 100) * window.innerHeight;
@@ -1134,36 +1319,27 @@
         } else if (lastSongLtLayout.visualBottom != null) {
           lastSongLtLayout.visualBottomNorm = lastSongLtLayout.visualBottom / window.innerHeight;
         }
-        if (lastSongLtLayout.visualTopNorm != null) {
-          lastSongLtLayout.visualTop = Math.round(lastSongLtLayout.visualTopNorm * window.innerHeight);
-        } else if (lastSongLtLayout.visualTop != null) {
-          lastSongLtLayout.visualTopNorm = lastSongLtLayout.visualTop / window.innerHeight;
-        }
 
         // If currently showing LT with BG off for songs, reapply stored layout to keep visual position stable
         if (currentState.mode === 'lt' && !currentState.isBible) {
           const ltWrapOpacity = getComputedStyle(elements.ltWrap).opacity;
           if (ltWrapOpacity === '0') {
-            const isTopAnchor = (lastSongLtLayout.anchor === 'top');
             const sidePad = lastSongLtLayout.sidePad || '10%';
             const pt = lastSongLtLayout.padTopPx || 0;
             const pb = lastSongLtLayout.padBottomPx || 0;
-            const vt = lastSongLtLayout.visualTop || 0;
             const vb = lastSongLtLayout.visualBottom || 0;
             elements.txt.style.height = 'auto';
             elements.txt.style.overflow = 'visible';
             elements.txt.style.padding = `${pt}px ${sidePad} ${pb}px`;
             elements.txt.style.justifyContent = 'center';
-            elements.txt.style.top = isTopAnchor ? `${vt}px` : 'auto';
-            elements.txt.style.bottom = isTopAnchor ? 'auto' : `${vb}px`;
+            elements.txt.style.bottom = `${vb}px`;
           }
         }
       });
     }
     
     function applyTypeOn(d, mode, isBible) {
-      const standardTarget = elements.txt.querySelector('.text-anim-content');
-      const target = (mode === 'custom') ? elements.customMainBar : (standardTarget || elements.txt);
+      const target = (mode === 'custom') ? elements.customMainBar : elements.txt;
       const customBgWasActive = (!animateBgTransitions && mode === 'custom');
       const effectiveTarget = (mode === 'custom' && customBgWasActive && elements.customMainText) ? elements.customMainText : target;
       if (!target) return;
@@ -1240,30 +1416,7 @@
       
       if (usesType) {
         applyTypeOn(d, mode, isBible);
-        if (t === 'type') {
-          // When Animate Background is enabled, fade the background in alongside the type-on text
-          if (animateBgTransitions && mode !== 'custom') {
-            const bgEl = (mode === 'full') ? elements.bg : elements.ltWrap;
-            const textKey = d.text || '';
-            const sameBg = transitionState.textKey === textKey && transitionState.type === t && transitionState.startTime > 0;
-            if (bgEl && !sameBg) {
-              transitionState.textKey = textKey;
-              transitionState.type = t;
-              transitionState.startTime = performance.now();
-              transitionState.duration = baseDuration;
-              bgEl.classList.remove('transition-anim', 'anim-fade', 'anim-zoom', 'anim-write');
-              bgEl.style.animation = 'none';
-              void bgEl.offsetWidth;
-              bgEl.style.animation = '';
-              bgEl.style.animationDuration = `${baseDuration}s`;
-              bgEl.classList.add('transition-anim', 'anim-fade');
-              bgEl.addEventListener('animationend', () => {
-                bgEl.classList.remove('transition-anim', 'anim-fade');
-              }, { once: true });
-            }
-          }
-          return;
-        }
+        if (t === 'type') return;
       } else {
         clearTypeTimers();
       }
@@ -1280,7 +1433,6 @@
       const animClass = (t === 'zoom' || isZoomType) ? 'anim-zoom' : (t === 'write' ? 'anim-write' : 'anim-fade');
       const targets = [];
       const textTargets = [];
-      const bgTargets = [];
       const customBgWasActive = (!animateBgTransitions && mode === 'custom');
       if (mode === 'custom') {
         if (customBgWasActive) {
@@ -1293,13 +1445,7 @@
           if (isBible) targets.push(elements.customVersionBar);
         }
       } else {
-        const standardTarget = elements.txt.querySelector('.text-anim-content');
-        targets.push(standardTarget || elements.txt);
-        // When Animate Background is enabled, animate the background layer alongside the text
-        if (animateBgTransitions) {
-          if (mode === 'full') bgTargets.push(elements.bg);
-          else if (mode === 'lt') bgTargets.push(elements.ltWrap);
-        }
+        targets.push(elements.txt);
       }
       
       const applyAnim = (el) => {
@@ -1315,20 +1461,6 @@
       
       targets.forEach(applyAnim);
       textTargets.forEach(applyAnim);
-      // Background targets always use fade-only to avoid transform/clip-path displacement
-      bgTargets.forEach(el => {
-        if (!el) return;
-        el.classList.remove('transition-anim', 'anim-fade', 'anim-zoom', 'anim-write');
-        el.style.animation = 'none';
-        void el.offsetWidth;
-        el.style.animation = '';
-        el.style.animationDuration = `${zoomDuration}s`;
-        el.style.animationDelay = `${-elapsedSec}s`;
-        el.classList.add('transition-anim', 'anim-fade');
-        el.addEventListener('animationend', () => {
-          el.classList.remove('transition-anim', 'anim-fade');
-        }, { once: true });
-      });
     }
     
     // ===== RENDERER =====
@@ -1341,22 +1473,19 @@
       const mode = (d.mode === 'full') ? 'full' : (d.mode === 'custom' ? 'custom' : 'lt');
       const isBible = !!d.isBible;
       const useCustomStyle = (mode === 'custom');
-      const ltAnchorMode = getLtAnchorMode(d);
       currentState.transitionType = (d.transitionType || currentState.transitionType || '');
       animateBgTransitions = d.animateBgTransitions !== false;
       registerIncomingFonts(d.customFonts);
       prevBgState = { full: bgActivePrev, lt: ltBgActivePrev, custom: customBgActivePrev };
       
       // Update container classes
-      elements.cont.className = `mode-${mode} ${isBible ? 'lt-bible' : 'lt-song'} lt-anchor-${ltAnchorMode} hardware-accelerated`;
-      applyLtAnchorMode(ltAnchorMode);
+      elements.cont.className = `mode-${mode} ${isBible ? 'lt-bible' : 'lt-song'} hardware-accelerated`;
       
       // Ensure LT layers are fully hidden in custom mode
       if (mode === 'custom') {
         elements.ltWrap.style.opacity = '0';
         elements.ltWrap.style.height = '0';
         elements.ltWrap.style.bottom = '0';
-        elements.ltWrap.style.top = 'auto';
         elements.ltInner.style.backgroundImage = 'none';
         elements.ltInner.style.backgroundColor = 'transparent';
         elements.bg.style.opacity = '0';
@@ -1366,7 +1495,7 @@
         elements.txt.style.bottom = 'auto';
         elements.txt.style.top = 'auto';
         elements.txt.style.width = '100%';
-        elements.txt.style.padding = `0 ${Math.max(0, Number(currentState.padLRFull ?? currentState.padLR ?? 5))}%`;
+        elements.txt.style.padding = '0 5%';
         elements.txt.style.display = 'none';
       }
       
@@ -1375,7 +1504,7 @@
         elements.txt.innerHTML = '';
         elements.txt.style.display = 'none';
       } else {
-        elements.txt.innerHTML = `<div class="text-anim-content">${d.text || ''}</div>`;
+        elements.txt.innerHTML = d.text || '';
         const isDualMode = !!d.dualVersionMode;
         elements.txt.classList.toggle('dual-mode', isDualMode);
         elements.cont.classList.toggle('dual-mode', isDualMode);
@@ -1425,7 +1554,6 @@
       elements.ltWrap.style.opacity = '0';
       elements.ltWrap.style.height = '0';
       elements.ltWrap.style.bottom = '0';
-      elements.ltWrap.style.top = 'auto';
       elements.ltInner.style.backgroundImage = 'none';
       elements.ltInner.style.backgroundColor = 'transparent';
       elements.bg.style.opacity = '0';
@@ -1901,7 +2029,6 @@
         elements.ltWrap.style.opacity = '0';
         elements.ltWrap.style.height = '0';
         elements.ltWrap.style.bottom = '0';
-        elements.ltWrap.style.top = 'auto';
       }
       
       // Set font properties
@@ -1935,8 +2062,7 @@
         elements.txt.style.bottom = '0';
         elements.txt.style.width = '100%';
         elements.txt.style.height = '100%';
-        const fullPadLR = Math.max(0, Number(d.padLRFull ?? d.padLR ?? 5));
-        elements.txt.style.padding = `0 ${fullPadLR}%`;
+        elements.txt.style.padding = '0 20px';
         elements.txt.style.transform = 'none';
         elements.txt.style.display = 'flex';
         elements.txt.style.alignItems = (hAlign === 'left') ? 'flex-start' : (hAlign === 'right') ? 'flex-end' : (hAlign === 'justify' ? 'stretch' : 'center');
@@ -1945,24 +2071,19 @@
         elements.txt.style.margin = '0 auto';
       } else {
         // Lower third mode
-        const ltAnchorMode = getLtAnchorMode(d);
-        const isTopAnchor = ltAnchorMode === 'top';
         const hAlignLT = (d.isBible ? (d.hAlignLTBible || 'left') : (d.hAlignLT || 'center'));
         const vAlignLT = (d.isBible ? (d.vAlignLTBible || 'middle') : (d.vAlignLT || 'middle'));
         elements.txt.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
         elements.txt.style.position = 'absolute';
         elements.txt.style.left = '0';
         elements.txt.style.right = '0';
+        elements.txt.style.top = 'auto';
         const textY = Number(d.textY || 1080);
         const bottomOffset = Math.max(0, window.innerHeight - textY);
-        elements.txt.style.top = isTopAnchor ? '0' : 'auto';
-        elements.txt.style.bottom = isTopAnchor ? 'auto' : `${bottomOffset}px`;
-        applyLtTextOffset(d);
-        applyLtContentWidth(d);
+        elements.txt.style.bottom = `${bottomOffset}px`;
+        elements.txt.style.width = '100%';
         // Remove built-in side padding for Bible; keep for songs.
-        elements.txt.style.padding = isBible
-          ? (isTopAnchor ? '2vh 20px 0' : '20px')
-          : (isTopAnchor ? '2vh 8% 0' : '0 8% 2vh');
+        elements.txt.style.padding = isBible ? '20px' : '0 8% 2vh';
         elements.txt.style.display = 'flex';
         elements.txt.style.alignItems = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
         elements.txt.style.justifyContent = (vAlignLT === 'top') ? 'flex-start' : (vAlignLT === 'bottom' ? 'flex-end' : 'center');
@@ -2189,7 +2310,7 @@
               const p = inactive.play();
               if (p && p.catch) p.catch(() => {});
               requestAnimationFrame(() => {
-                inactive.style.opacity = `${revealOpacity}`;
+                inactive.style.opacity = '1';
                 active.style.opacity = '0';
               });
               setTimeout(() => {
@@ -2211,7 +2332,6 @@
       if (!videoEl) return;
       const loop = options.loop !== undefined ? !!options.loop : true;
       const playbackRate = normalizeVideoSpeed(options.playbackRate);
-      const revealOpacity = clamp(Number(options.revealOpacity ?? 1), 0, 1);
       const nextSrc = src || '';
       const prevSrc = videoEl.dataset.src || '';
       const srcChanged = nextSrc && nextSrc !== prevSrc;
@@ -2260,7 +2380,7 @@
           active.style.opacity = '0';
           const reveal = () => {
             active.style.transition = 'opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1)';
-            active.style.opacity = `${revealOpacity}`;
+            active.style.opacity = '1';
             setTimeout(() => { active.style.transition = ''; }, 280);
           };
           if (active.readyState >= 2) reveal();
@@ -2272,7 +2392,7 @@
           }
         } else {
           active.style.display = 'block';
-          active.style.opacity = `${revealOpacity}`;
+          active.style.opacity = '1';
         }
         const p = active.play();
         if (p && p.catch) p.catch(() => {});
@@ -2289,7 +2409,7 @@
           videoEl.style.opacity = '0';
           const reveal = () => {
             videoEl.style.transition = 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-            videoEl.style.opacity = `${revealOpacity}`;
+            videoEl.style.opacity = '1';
             // Clean up transition after it completes
             setTimeout(() => { videoEl.style.transition = ''; }, 450);
           };
@@ -2307,7 +2427,7 @@
         } else {
           // Already loaded and showing — just ensure visible
           videoEl.style.display = 'block';
-          videoEl.style.opacity = `${revealOpacity}`;
+          videoEl.style.opacity = '1';
           const p = videoEl.play();
           if (p && p.catch) p.catch(() => {});
         }
@@ -2376,23 +2496,16 @@
         else el.style.transition = '';
       };
       const edgeFixScale = (d.bgEdgeFix && blurPx > 0) ? Math.min(1.4, 1 + (blurPx / 32)) : 1;
-      const ltBgTransform = `scale(${edgeFixScale})`;
+      const ltBgTransform = `scale(${edgeFixScale}) translateY(${bgY * 0.1}vh)`;
       const fullBgTransform = `scale(${edgeFixScale})`;
-      const bgPositionY = `${50 + bgY}%`;
       elements.ltInner.style.transform = ltBgTransform;
       elements.ltCrossfade.style.transform = ltBgTransform;
       elements.ltInner.style.transformOrigin = 'center center';
       elements.ltCrossfade.style.transformOrigin = 'center center';
-      elements.ltInner.style.backgroundPosition = `center ${bgPositionY}`;
-      elements.ltCrossfade.style.backgroundPosition = `center ${bgPositionY}`;
       elements.bg.style.transform = fullBgTransform;
       elements.bgCrossfade.style.transform = fullBgTransform;
       elements.bg.style.transformOrigin = 'center center';
       elements.bgCrossfade.style.transformOrigin = 'center center';
-      elements.bg.style.backgroundPosition = `center ${bgPositionY}`;
-      elements.bgCrossfade.style.backgroundPosition = `center ${bgPositionY}`;
-      if (elements.ltVideo) elements.ltVideo.style.objectPosition = `center ${bgPositionY}`;
-      if (elements.bgVideo) elements.bgVideo.style.objectPosition = `center ${bgPositionY}`;
       
       if (mode === 'lt' || mode === 'custom') {
         applyTransitionState(elements.bg, suppressBgTransition);
@@ -2401,20 +2514,16 @@
         syncYoutubeState(elements.bgYoutube, elements.bgYoutubeFrame, bgYoutubeSrc, false);
         
         if (mode === 'lt') {
-          const ltAnchorMode = getLtAnchorMode(d);
-          const isTopAnchor = ltAnchorMode === 'top';
           applyTransitionState(elements.ltWrap, suppressLtTransition);
-          applyLtContentWidth(d);
-          applyLtBandOffset(d);
-          applyLtBorderRadius(d);
+          elements.txt.style.maxWidth = '100%';
+          elements.txt.style.width = '100%';
           const ltHeight = computeLtHeight(d);
           elements.ltWrap.style.height = `${ltHeight}vh`;
-          applyLtAnchorMode(ltAnchorMode);
+          elements.ltWrap.style.bottom = '0';
+          elements.ltWrap.style.top = 'auto';
           const textY = Number(d.textY || 1080);
           const bottomOffset = Math.max(0, window.innerHeight - textY);
-          elements.txt.style.top = isTopAnchor ? '0' : 'auto';
-          elements.txt.style.bottom = isTopAnchor ? 'auto' : `${bottomOffset}px`;
-          applyLtTextOffset(d);
+          elements.txt.style.bottom = `${bottomOffset}px`;
 
           const ltBgModeRequested = (typeof d.bgMode === 'string') ? d.bgMode : 'solid';
           const ltBgModeChanged = ltBgModeRequested !== lastLtBgMode;
@@ -2422,14 +2531,100 @@
           const ltBgTypeChanged = ltBgTypeRequested !== lastLtBgType;
           
           if (isBible) {
-            applyBibleLtLayout(d, ltHeight, ltAnchorMode);
+            // Bible LT mode - special handling for proper positioning
+            const padLR = Math.max(0, d.padLR ?? 0);
+            elements.txt.style.padding = `0 ${padLR}% 2vh`;
+            const hAlignLT = d.hAlignLTBible || 'left';
+            const vAlignLT = d.vAlignLTBible || 'middle';
+            elements.txt.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
+            elements.txt.style.alignItems = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
+            elements.txt.style.justifyContent = (vAlignLT === 'top') ? 'flex-start' : (vAlignLT === 'bottom' ? 'flex-end' : 'center');
+            const refEls = elements.txt.querySelectorAll('.jo-ref-line');
+            refEls.forEach(refEl => {
+              refEl.style.alignSelf = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
+              refEl.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
+            });
+            const verseAlign = d.hAlignLTBibleVerse || hAlignLT;
+            const bodyEls = elements.txt.querySelectorAll('.jo-body');
+            bodyEls.forEach(bodyEl => {
+              bodyEl.style.textAlign = (verseAlign === 'justify') ? 'justify' : verseAlign;
+              bodyEl.style.alignSelf = (verseAlign === 'left') ? 'flex-start' : (verseAlign === 'right') ? 'flex-end' : (verseAlign === 'justify' ? 'stretch' : 'center');
+            });
           } else {
             // Song LT mode
-            const vAlignLT = d.vAlignLT || 'middle';
-            const sidePad = `${d.padLRLT || d.padLR || 5}%`;
+            elements.txt.style.padding = `0 ${d.padLR || 10}% 10vh`;
             elements.txt.style.alignItems = 'center';
-            applyLtAnchorMode(ltAnchorMode);
-            applySongLtVerticalLayout(d, ltHeight, sidePad, vAlignLT, ltAnchorMode);
+            elements.ltWrap.style.bottom = '0';
+            elements.ltWrap.style.top = 'auto';
+
+            // If a background is enabled, vertically center lyrics within the cropped background area
+            if (d.bgEnabled) {
+              // Make the text container the same height as the cropped LT area and clamp overflow
+              elements.txt.style.height = `${ltHeight}vh`;
+              elements.txt.style.bottom = '0';
+              elements.txt.style.overflow = 'hidden';
+
+              // Keep equal left/right padding; we'll compute symmetric top/bottom padding for vertical centering
+              const sidePad = `${d.padLR || 10}%`;
+              elements.txt.style.padding = `0 ${sidePad} 0`;
+
+              // Measure the rendered text height and compute symmetric padding to center it within the LT area
+              const ltHeightPx = (ltHeight / 100) * window.innerHeight;
+              const txtHeight = elements.txt.scrollHeight || elements.txt.getBoundingClientRect().height || 0;
+              const minPadPx = Math.max(8, Math.round(0.02 * ltHeightPx)); // minimal padding for overflow case
+
+              if (txtHeight <= ltHeightPx - (minPadPx * 2)) {
+                // Text fits: distribute extra equally as top/bottom padding
+                const extra = ltHeightPx - txtHeight;
+                const pad = Math.floor(extra / 2);
+                elements.txt.style.paddingTop = `${pad}px`;
+                elements.txt.style.paddingBottom = `${pad}px`;
+                elements.txt.style.justifyContent = 'center';
+
+                // store layout for persistence when BG toggles off
+                lastSongLtLayout.padTopPx = pad;
+                lastSongLtLayout.padBottomPx = pad;
+              } else {
+                // Text larger than area: center content and use minimal symmetric padding (content will be clipped equally)
+                elements.txt.style.paddingTop = `${minPadPx}px`;
+                elements.txt.style.paddingBottom = `${minPadPx}px`;
+                elements.txt.style.justifyContent = 'center';
+
+                // store minimal padding values
+                lastSongLtLayout.padTopPx = minPadPx;
+                lastSongLtLayout.padBottomPx = minPadPx;
+              }
+              // store side pad and height
+              lastSongLtLayout.sidePad = sidePad;
+              lastSongLtLayout.heightVh = ltHeight;
+
+              // measure visual bottom of text (px from viewport bottom) and store
+              const bottomRect = elements.txt.getBoundingClientRect();
+              lastSongLtLayout.visualBottom = Math.round(window.innerHeight - (bottomRect.bottom || 0));
+
+              // Store normalized values so we can restore layout robustly after window resizes
+              lastSongLtLayout.padTopNorm = (lastSongLtLayout.padTopPx != null && ltHeightPx > 0) ? (lastSongLtLayout.padTopPx / ltHeightPx) : null;
+              lastSongLtLayout.padBottomNorm = (lastSongLtLayout.padBottomPx != null && ltHeightPx > 0) ? (lastSongLtLayout.padBottomPx / ltHeightPx) : null;
+              lastSongLtLayout.visualBottomNorm = (lastSongLtLayout.visualBottom != null) ? (lastSongLtLayout.visualBottom / window.innerHeight) : null;
+            } else {
+              // default when no bg: preserve last LT layout if we have it (so text doesn't snap to extreme bottom)
+              if (lastSongLtLayout && lastSongLtLayout.visualBottom != null) {
+                elements.txt.style.height = 'auto';
+                elements.txt.style.overflow = 'visible';
+                const sidePad = lastSongLtLayout.sidePad || `${d.padLR || 10}%`;
+                const pt = (lastSongLtLayout.padTopPx != null) ? `${lastSongLtLayout.padTopPx}px` : '0px';
+                const pb = (lastSongLtLayout.padBottomPx != null) ? `${lastSongLtLayout.padBottomPx}px` : '0px';
+                elements.txt.style.padding = `${pt} ${sidePad} ${pb}`;
+                elements.txt.style.justifyContent = 'center';
+                elements.txt.style.bottom = `${lastSongLtLayout.visualBottom}px`;
+              } else {
+                elements.txt.style.height = 'auto';
+                elements.txt.style.overflow = 'visible';
+                elements.txt.style.padding = `0 ${d.padLR || 10}% 2vh`;
+                elements.txt.style.justifyContent = 'flex-end';
+                elements.txt.style.bottom = `${bottomOffset}px`;
+              }
+            }
           }
           elements.txt.style.zIndex = '4';
           elements.ltWrap.style.zIndex = '-2';
@@ -2438,7 +2633,7 @@
           if (d.bgEnabled) {
             elements.ltWrap.style.opacity = bgOpacity;
             elements.ltInner.style.filter = `blur(${blurPx}px)`;
-            syncVideoState(elements.ltVideo, bgVideoSrc, (d.bgType === 'video' && !!bgVideoSrc), { ...videoSettings, fadeOut: (lastLtBgType === 'video' && d.bgType !== 'video'), revealOpacity: bgOpacity });
+            syncVideoState(elements.ltVideo, bgVideoSrc, (d.bgType === 'video' && !!bgVideoSrc), { ...videoSettings, fadeOut: (lastLtBgType === 'video' && d.bgType !== 'video') });
             syncYoutubeState(elements.ltYoutube, elements.ltYoutubeFrame, bgYoutubeSrc, (d.bgType === 'video' && !!bgYoutubeSrc));
             
             const applyLtBackground = () => {
@@ -2469,36 +2664,12 @@
             };
 
             const shouldLtFade = (ltBgModeChanged || ltBgTypeChanged) && ltCurrentlyActive && prevBgState.lt && !bgVideoSrc && !bgGifSrc && !bgYoutubeSrc;
-            const shouldLtFadeIn = ltCurrentlyActive && !prevBgState.lt && !bgVideoSrc && !bgYoutubeSrc;
             const shouldLtFadeFromVideo = ltBgTypeChanged && ltCurrentlyActive && prevBgState.lt && !bgVideoSrc && !bgGifSrc && !bgYoutubeSrc && lastLtBgType === 'video';
             const shouldLtFadeToVideo = ltBgTypeChanged && ltCurrentlyActive && prevBgState.lt && (!!bgVideoSrc || !!bgGifSrc) && lastLtBgType !== 'video';
             if (shouldLtFadeFromVideo) {
               // Video fades out via syncVideoState fadeOut option — just apply new bg underneath
               applyLtBackground();
               elements.ltInner.style.opacity = `${bgOpacity}`;
-            } else if (shouldLtFadeIn) {
-              const lcf = elements.ltCrossfade;
-              lcf.style.transition = 'none';
-              applyLtBackground();
-              const nextLtBgImage = elements.ltInner.style.backgroundImage;
-              const nextLtBgColor = elements.ltInner.style.backgroundColor;
-              elements.ltInner.style.opacity = '0';
-              lcf.style.backgroundImage = nextLtBgImage;
-              lcf.style.backgroundColor = nextLtBgColor;
-              lcf.style.filter = elements.ltInner.style.filter || '';
-              lcf.style.opacity = '0';
-              elements.ltWrap.style.opacity = `${bgOpacity}`;
-              requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  lcf.style.transition = 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                  lcf.style.opacity = `${bgOpacity}`;
-                  setTimeout(() => {
-                    elements.ltInner.style.opacity = `${bgOpacity}`;
-                    lcf.style.transition = 'none';
-                    lcf.style.opacity = '0';
-                  }, 520);
-                });
-              });
             } else if (shouldLtFade) {
               // Crossfade dissolve: show old bg on overlay, apply new bg underneath, fade overlay out
               const lcf = elements.ltCrossfade;
@@ -2578,7 +2749,7 @@
       } else {
         // Full screen mode
         applyTransitionState(elements.bg, suppressBgTransition);
-        elements.txt.style.padding = `0 ${Math.max(0, Number(d.padLRFull ?? d.padLR ?? 5))}%`;
+        elements.txt.style.padding = '0 5%';
         elements.txt.style.maxWidth = '100%';
         elements.txt.style.width = '100%';
         elements.ltWrap.style.opacity = '0';
@@ -2588,7 +2759,7 @@
         
         if (d.bgEnabled) {
           elements.bg.style.filter = `blur(${blurPx}px)`;
-          syncVideoState(elements.bgVideo, bgVideoSrc, (d.bgType === 'video' && !!bgVideoSrc), { ...videoSettings, fadeOut: (lastBgType === 'video' && d.bgType !== 'video'), revealOpacity: bgOpacity });
+          syncVideoState(elements.bgVideo, bgVideoSrc, (d.bgType === 'video' && !!bgVideoSrc), { ...videoSettings, fadeOut: (lastBgType === 'video' && d.bgType !== 'video') });
           syncYoutubeState(elements.bgYoutube, elements.bgYoutubeFrame, bgYoutubeSrc, (d.bgType === 'video' && !!bgYoutubeSrc));
 
           const applyFullBackground = () => {
@@ -2619,35 +2790,12 @@
           };
 
           const shouldFade = (bgModeChanged || bgTypeChanged) && bgCurrentlyActive && prevBgState.full && !bgVideoSrc && !bgGifSrc && !bgYoutubeSrc;
-          const shouldFadeIn = bgCurrentlyActive && !prevBgState.full && !bgVideoSrc && !bgYoutubeSrc;
           const shouldFadeFromVideo = bgTypeChanged && bgCurrentlyActive && prevBgState.full && !bgVideoSrc && !bgGifSrc && !bgYoutubeSrc && lastBgType === 'video';
           const shouldFadeToVideo = bgTypeChanged && bgCurrentlyActive && prevBgState.full && (!!bgVideoSrc || !!bgGifSrc) && lastBgType !== 'video';
           if (shouldFadeFromVideo) {
             // Video fades out via syncVideoState fadeOut option — just apply new bg underneath
             applyFullBackground();
             elements.bg.style.opacity = `${bgOpacity}`;
-          } else if (shouldFadeIn) {
-            const cf = elements.bgCrossfade;
-            cf.style.transition = 'none';
-            applyFullBackground();
-            const nextBgImage = elements.bg.style.backgroundImage;
-            const nextBgColor = elements.bg.style.backgroundColor;
-            elements.bg.style.opacity = '0';
-            cf.style.backgroundImage = nextBgImage;
-            cf.style.backgroundColor = nextBgColor;
-            cf.style.filter = elements.bg.style.filter || '';
-            cf.style.opacity = '0';
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                cf.style.transition = 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                cf.style.opacity = `${bgOpacity}`;
-                setTimeout(() => {
-                  elements.bg.style.opacity = `${bgOpacity}`;
-                  cf.style.transition = 'none';
-                  cf.style.opacity = '0';
-                }, 520);
-              });
-            });
           } else if (shouldFade) {
             // Crossfade dissolve: show old bg on overlay, apply new bg underneath, fade overlay out
             const cf = elements.bgCrossfade;
@@ -2724,37 +2872,120 @@
         if (suppressLtTransition) elements.ltWrap.style.transition = '';
         if (suppressCustomBgTransition) elements.ltWrap.style.transition = '';
         if (mode === 'lt' && d.bgEnabled) {
-          const ltAnchorMode = getLtAnchorMode(d);
-          const isTopAnchor = ltAnchorMode === 'top';
-          const ltOffsetY = getLtOffsetY(d);
           elements.ltWrap.style.opacity = bgOpacity;
 
           // Recompute LT height (auto-resize by line count) and centering after layout so measurements are accurate
-          applyLtBandOffset(d);
-          applyLtBorderRadius(d);
           const ltHeight = computeLtHeight(d);
           elements.ltWrap.style.height = `${ltHeight}vh`;
-          applyLtAnchorMode(ltAnchorMode);
 
           if (!isBible) {
-            applyLtTextOffset(d);
-            const sidePad = `${d.padLRLT || d.padLR || 5}%`;
-            const vAlignLT = d.vAlignLT || 'middle';
-            applySongLtVerticalLayout(d, ltHeight, sidePad, vAlignLT, ltAnchorMode);
+            elements.txt.style.height = `${ltHeight}vh`;
+            elements.txt.style.bottom = '0';
+            elements.txt.style.overflow = 'hidden';
+
+            // Keep equal left/right padding; compute symmetric vertical padding for perfect centering
+            const sidePad = `${d.padLR || 10}%`;
+            elements.txt.style.padding = `0 ${sidePad} 0`;
+
+            const ltHeightPx = (ltHeight / 100) * window.innerHeight;
+            const txtHeight = elements.txt.scrollHeight || elements.txt.getBoundingClientRect().height || 0;
+            const minPadPx = Math.max(8, Math.round(0.02 * ltHeightPx));
+
+            if (txtHeight <= ltHeightPx - (minPadPx * 2)) {
+              const extra = ltHeightPx - txtHeight;
+              const pad = Math.floor(extra / 2);
+              elements.txt.style.paddingTop = `${pad}px`;
+              elements.txt.style.paddingBottom = `${pad}px`;
+              elements.txt.style.justifyContent = 'center';
+
+              // store layout for persistence when BG toggles off
+              lastSongLtLayout.padTopPx = pad;
+              lastSongLtLayout.padBottomPx = pad;
+            } else {
+              // content larger than area — keep minimal symmetric padding and center (will clip equally)
+              elements.txt.style.paddingTop = `${minPadPx}px`;
+              elements.txt.style.paddingBottom = `${minPadPx}px`;
+              elements.txt.style.justifyContent = 'center';
+
+              lastSongLtLayout.padTopPx = minPadPx;
+              lastSongLtLayout.padBottomPx = minPadPx;
+            }
+
+            // persist side padding and lt height for restore
+            lastSongLtLayout.sidePad = sidePad;
+            lastSongLtLayout.heightVh = ltHeight;
+
+            // measure visual bottom of text (px from viewport bottom) and store
+            const bottomRect = elements.txt.getBoundingClientRect();
+            lastSongLtLayout.visualBottom = Math.round(window.innerHeight - (bottomRect.bottom || 0));
+
+            // Also store normalized values for stability on window resize
+            const ltHeightPxHere = (ltHeight / 100) * window.innerHeight;
+            lastSongLtLayout.padTopNorm = (lastSongLtLayout.padTopPx != null && ltHeightPxHere > 0) ? (lastSongLtLayout.padTopPx / ltHeightPxHere) : lastSongLtLayout.padTopNorm || null;
+            lastSongLtLayout.padBottomNorm = (lastSongLtLayout.padBottomPx != null && ltHeightPxHere > 0) ? (lastSongLtLayout.padBottomPx / ltHeightPxHere) : lastSongLtLayout.padBottomNorm || null;
+            lastSongLtLayout.visualBottomNorm = (lastSongLtLayout.visualBottom != null) ? (lastSongLtLayout.visualBottom / window.innerHeight) : lastSongLtLayout.visualBottomNorm || null;
           } else {
-            applyBibleLtLayout(d, ltHeight, ltAnchorMode);
+            // Bible LT with BG enabled — ensure padding and alignments follow Bible settings
+            const ltHeight = computeLtHeight(d);
+            elements.txt.style.height = `${ltHeight}vh`;
+            elements.txt.style.overflow = 'hidden';
+            elements.txt.style.padding = '20px';
+
+            const hAlignLT = d.hAlignLTBible || 'left';
+            const vAlignLT = d.vAlignLTBible || 'middle';
+            elements.txt.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
+            elements.txt.style.alignItems = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
+            elements.txt.style.justifyContent = (vAlignLT === 'top') ? 'flex-start' : (vAlignLT === 'bottom' ? 'flex-end' : 'center');
+
+            // remove background color under bible ref to satisfy requested behavior
+            const refEls = elements.txt.querySelectorAll('.jo-ref-line');
+            refEls.forEach(refEl => {
+              refEl.style.background = 'transparent';
+              refEl.style.boxShadow = 'none';
+              refEl.style.alignSelf = (hAlignLT === 'left') ? 'flex-start' : (hAlignLT === 'right') ? 'flex-end' : (hAlignLT === 'justify' ? 'stretch' : 'center');
+              refEl.style.textAlign = (hAlignLT === 'justify') ? 'justify' : hAlignLT;
+            });
+            const verseAlign = d.hAlignLTBibleVerse || hAlignLT;
+            const bodyEls = elements.txt.querySelectorAll('.jo-body');
+            bodyEls.forEach(bodyEl => {
+              bodyEl.style.textAlign = (verseAlign === 'justify') ? 'justify' : verseAlign;
+              bodyEl.style.alignSelf = (verseAlign === 'left') ? 'flex-start' : (verseAlign === 'right') ? 'flex-end' : (verseAlign === 'justify' ? 'stretch' : 'center');
+            });
           }
-        } else if (mode === 'lt' && !d.bgEnabled && isBible) {
-          const ltAnchorMode = getLtAnchorMode(d);
-          const ltHeight = computeLtHeight(d);
-          applyLtAnchorMode(ltAnchorMode);
-          applyBibleLtLayout(d, ltHeight, ltAnchorMode);
         } else if (mode === 'lt' && !d.bgEnabled && !isBible) {
-          const ltAnchorMode = getLtAnchorMode(d);
-          const ltHeight = computeLtHeight(d);
-          const sidePad = `${d.padLRLT || d.padLR || 5}%`;
-          const vAlignLT = d.vAlignLT || 'middle';
-          applySongLtVerticalLayout(d, ltHeight, sidePad, vAlignLT, ltAnchorMode);
+          // BG has been turned off for song LT; restore last visual layout if available
+          if (lastSongLtLayout && lastSongLtLayout.visualBottom != null) {
+            const sidePad = lastSongLtLayout.sidePad || `${d.padLR || 10}%`;
+
+            // Prefer normalized values (ratios) to compute px on the current viewport; fall back to stored px values
+            let ptPx = 0;
+            let pbPx = 0;
+            if (lastSongLtLayout.padTopNorm != null && lastSongLtLayout.heightVh != null) {
+              const ltHeightPx = (lastSongLtLayout.heightVh / 100) * window.innerHeight;
+              ptPx = Math.round(lastSongLtLayout.padTopNorm * ltHeightPx);
+              pbPx = Math.round((lastSongLtLayout.padBottomNorm != null ? lastSongLtLayout.padBottomNorm : lastSongLtLayout.padTopNorm) * ltHeightPx);
+            } else {
+              ptPx = (lastSongLtLayout.padTopPx != null) ? lastSongLtLayout.padTopPx : 0;
+              pbPx = (lastSongLtLayout.padBottomPx != null) ? lastSongLtLayout.padBottomPx : 0;
+            }
+
+            let vbPx = lastSongLtLayout.visualBottom;
+            if (lastSongLtLayout.visualBottomNorm != null) vbPx = Math.round(lastSongLtLayout.visualBottomNorm * window.innerHeight);
+
+            elements.txt.style.height = 'auto';
+            elements.txt.style.overflow = 'visible';
+            const bottomPadPx = Math.max(pbPx, MIN_SONG_LT_NO_BG_BOTTOM_PAD_PX);
+            elements.txt.style.padding = `${ptPx}px ${sidePad} ${bottomPadPx}px`;
+            elements.txt.style.justifyContent = 'center';
+            elements.txt.style.bottom = `${vbPx}px`;
+          } else {
+            // fallback: keep text near bottom with small bottom padding
+            elements.txt.style.height = 'auto';
+            elements.txt.style.overflow = 'visible';
+            elements.txt.style.padding = `0 ${d.padLR || 10}% ${MIN_SONG_LT_NO_BG_BOTTOM_PAD_PX}px`;
+            elements.txt.style.justifyContent = 'flex-end';
+            elements.txt.style.bottom = '2vh';
+          }
         }
         if (mode === 'full' && d.bgEnabled) {
           elements.bg.style.opacity = bgOpacity;
@@ -2772,7 +3003,6 @@
         clearTimeout(clearTimer);
         clearTimer = null;
       }
-      clearMediaStage();
       elements.txt.style.opacity = '0';
       elements.bg.style.opacity = '0';
       elements.ltWrap.style.opacity = '0';
@@ -2863,21 +3093,6 @@
       window.__bspDisplayEventsBound = true;
       window.addEventListener('resize', handleLtLayoutResize);
       window.addEventListener('resize', handleResize);
-      window.addEventListener('message', (event) => {
-        const data = event && event.data ? event.data : {};
-        if (data.type === 'PREVIEW_UPDATE' && data.payload) {
-          clearMediaStage();
-          handleUpdate(data.payload);
-          return;
-        }
-        if (data.type === 'PREVIEW_CLEAR') {
-          clearDisplay();
-          return;
-        }
-        if (data.type === 'MEDIA_LOAD' || data.type === 'MEDIA_CLEAR' || data.type === 'MEDIA_REMOTE' || data.type === 'MEDIA_COVER_POS') {
-          handleInboundMessage(data, 'postMessage');
-        }
-      });
       window.addEventListener('beforeunload', () => {
         if (rafId) cancelAnimationFrame(rafId);
         if (helloTimer) {

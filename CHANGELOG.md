@@ -2,6 +2,13 @@
 
 All notable changes to `Bible Song Pro` should be documented in this file.
 
+## Mod 1.0
+
+- Unhid menu for websocket configuration
+- Works over lan through lan server (port 8000, ws 5511)
+- works over public url through tailscale funnel server (port 443, ws 1000); I recommend installing and configuring tailscale magic dns and funnel
+- Added Ticker (scrolling text), Overlay text, Logo and Media overlay
+
 ## Version 2.0.0
 
 Major release focused on productizing Bible Song Pro beyond the original two-file OBS package while keeping OBS workflows central.
